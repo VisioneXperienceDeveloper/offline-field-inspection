@@ -1,0 +1,41 @@
+<section class="page">
+  <div class="page-heading"><div><h1>Field inspections</h1><p>Create, submit and approve inspection records across your project.</p></div><div class="heading-actions"><button class="secondary" type="button" (click)="store.exportCsv()">Export CSV</button><button class="primary" type="button" (click)="dialogOpen.set(true)">＋ New inspection</button></div></div>
+
+  @if (!connectivity.online()) {
+    <div class="offline-banner"><span>☁</span><span><strong>Offline · {{ store.pendingCount() }} change(s) stored safely</strong><small>Your records will sync automatically when the connection returns.</small></span><button type="button" (click)="syncNow()">Check connection</button></div>
+  }
+
+  <div class="summary-strip">
+    <button type="button" (click)="status.set('Draft')"><span class="summary-icon blue">▤</span><span><small>Draft inspections</small><strong>{{ store.draftCount() }}</strong></span></button>
+    <button type="button" (click)="viewSubmitted()"><span class="summary-icon amber">◷</span><span><small>Awaiting approval</small><strong>{{ store.submittedCount() }}</strong></span></button>
+    <button type="button" (click)="syncNow()"><span class="summary-icon slate">☁</span><span><small>Waiting to sync</small><strong>{{ store.pendingCount() }}</strong></span></button>
+  </div>
+
+  <div class="content-grid">
+    <div class="register">
+      <div class="register-tools">
+        <div class="tabs" role="tablist" aria-label="Inspection status">
+          @for (tab of statusTabs; track tab) { <button type="button" role="tab" [attr.aria-selected]="status() === tab" [class.active]="status() === tab" (click)="status.set(tab)">{{ tab }} <span>{{ count(tab) }}</span></button> }
+        </div>
+        <div class="filters"><label class="search"><span>⌕</span><input type="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Search inspections" aria-label="Search inspections"></label><select [ngModel]="sort()" (ngModelChange)="sort.set($event)" aria-label="Sort inspections"><option value="updated-desc">Newest activity</option><option value="updated-asc">Oldest activity</option><option value="title">Inspection name</option></select></div>
+      </div>
+      <div class="table-wrap">
+        <table><thead><tr><th>Inspection</th><th>Zone</th><th>Inspector</th><th>Status</th><th>Sync</th><th>Last updated</th><th><span class="sr-only">Open</span></th></tr></thead><tbody>
+          @for (inspection of filtered(); track inspection.id) {
+            <tr tabindex="0" (click)="openInspection(inspection.id)" (keydown.enter)="openInspection(inspection.id)">
+              <td><strong>{{ inspection.title }}</strong><small>{{ inspection.id }}</small></td><td>{{ inspection.zone }}</td><td>{{ inspection.inspector }}</td><td><app-status-badge [value]="inspection.status" /></td><td><app-status-badge [value]="inspection.syncStatus" /></td><td>{{ inspection.updatedAt }}</td><td class="arrow">›</td>
+            </tr>
+          } @empty { <tr><td colspan="7"><div class="empty"><span>⌕</span><strong>No matching inspections</strong><p>Try a different search or status filter.</p><button type="button" (click)="clearFilters()">Clear filters</button></div></td></tr> }
+        </tbody></table>
+      </div>
+      <footer><span>{{ filtered().length }} inspection(s)</span><span>Project records</span></footer>
+    </div>
+    <aside class="activity-rail">
+      <div class="rail-heading"><h2>Recent activity</h2><button type="button" class="link-button" (click)="viewAudit()">View all</button></div>
+      @for (event of recentEvents(); track event.id) { <button class="activity" type="button" (click)="openInspection(event.inspectionId)"><i></i><span><strong>{{ event.inspectionTitle }}</strong><small>{{ event.action }}</small><em>{{ event.occurredAt }} · {{ event.actor }}</em></span></button> }
+      <div class="sync-panel"><div><h3>Sync queue</h3><strong>{{ store.pendingCount() }}</strong></div><p>{{ store.pendingCount() ? 'Offline changes are stored safely on this device.' : 'All project records are up to date.' }}</p><div class="progress"><i [style.width.%]="store.pendingCount() ? 58 : 100"></i></div><button type="button" [disabled]="!connectivity.online() || !store.pendingCount()" (click)="syncNow()">Sync now</button></div>
+    </aside>
+  </div>
+</section>
+
+@if (dialogOpen()) { <app-new-inspection-dialog (cancelled)="dialogOpen.set(false)" (started)="startInspection($event)" /> }

@@ -1,0 +1,44 @@
+@if (inspection(); as item) {
+  <main class="detail-page">
+    <div class="breadcrumbs"><a routerLink="/inspections">Inspections</a><span>/</span><span>{{ item.id }}</span></div>
+    <header class="detail-heading">
+      <div><button type="button" class="back" (click)="goBack()" aria-label="Back to inspections">←</button><div><div class="title-line"><h1>{{ item.title }}</h1><app-status-badge [value]="item.status" /></div><p>{{ item.id }} · {{ item.projectName }} · {{ item.templateName }}</p></div></div>
+      <div class="heading-actions">
+        @if (item.status === 'Draft') { <button type="button" class="secondary" (click)="save()">Save draft</button><button type="button" class="primary" (click)="transition('Submitted')">Submit inspection</button> }
+        @if (item.status === 'Submitted') { <button type="button" class="secondary" (click)="transition('Draft')">Return to draft</button><button type="button" class="approve" (click)="transition('Approved')">Approve inspection</button> }
+        @if (item.status === 'Approved') { <button type="button" class="secondary" (click)="goBack()">Done</button> }
+      </div>
+    </header>
+    @if (!connectivity.online()) { <div class="offline-banner"><span>◌</span><div><strong>Working offline</strong><small>Every change is saved locally and will sync when your connection returns.</small></div></div> }
+    <div class="workspace">
+      <nav class="steps" aria-label="Inspection sections">
+        <button type="button" (click)="scrollTo('details-section')"><span>1</span><b>Details</b><small>Site information</small></button>
+        <button type="button" (click)="scrollTo('checklist-section')"><span>2</span><b>Checklist</b><small>{{ completed() }} of {{ item.checklist.length }}</small></button>
+        <button type="button" (click)="scrollTo('photo-section')"><span>3</span><b>Evidence</b><small>{{ item.photos.length }} photos</small></button>
+        <button type="button" (click)="scrollTo('review-section')"><span>4</span><b>Review</b><small>{{ item.status }}</small></button>
+      </nav>
+      <div class="form-stack">
+        <section class="details-card" id="details-section">
+          <header><div><h2>Inspection details</h2><p>Confirm the site context before completing the checklist.</p></div><span>{{ item.status === 'Draft' ? 'Editable' : 'Locked' }}</span></header>
+          <div class="field-grid">
+            <label class="wide"><span>Inspection title</span><input [disabled]="item.status !== 'Draft'" [ngModel]="item.title" (ngModelChange)="store.updateDetails(item.id,{title:$event})"></label>
+            <label><span>Inspection date</span><input type="date" [disabled]="item.status !== 'Draft'" [ngModel]="item.inspectionDate" (ngModelChange)="store.updateDetails(item.id,{inspectionDate:$event})"></label>
+            <label><span>Inspector</span><input [value]="item.inspector" disabled></label>
+            <label><span>Site zone</span><select [disabled]="item.status !== 'Draft'" [ngModel]="item.zone" (ngModelChange)="store.updateDetails(item.id,{zone:$event})"><option>Select a site zone</option><option>North access</option><option>Level 2</option><option>Loading bay</option><option>Tunnel east</option></select></label>
+            <label><span>Weather</span><select [disabled]="item.status !== 'Draft'" [ngModel]="item.weather" (ngModelChange)="store.updateDetails(item.id,{weather:$event})"><option>Clear</option><option>Cloudy</option><option>Rain</option><option>High wind</option><option>Extreme heat</option></select></label>
+          </div>
+        </section>
+        <app-inspection-checklist [items]="item.checklist" [disabled]="item.status !== 'Draft'" (answerChanged)="store.updateAnswer(item.id,$event.itemId,$event.answer)" (noteChanged)="store.updateNote(item.id,$event.itemId,$event.note)" />
+        <app-photo-evidence [photos]="item.photos" [disabled]="item.status !== 'Draft'" (photoAdded)="addPhoto($event)" (photoRemoved)="removePhoto($event)" />
+        <section class="review-card" id="review-section"><span>{{ item.status === 'Approved' ? '✓' : '4' }}</span><div><h2>{{ item.status === 'Draft' ? 'Ready to submit?' : item.status === 'Submitted' ? 'Awaiting approval' : 'Inspection approved' }}</h2><p>{{ required() }} required items · {{ completed() }} completed · {{ item.photos.length }} photos attached{{ item.requiresPhotos ? ' (required)' : '' }}</p></div>@if(item.status === 'Draft'){<button type="button" (click)="transition('Submitted')">Submit for approval</button>}@else if(item.status === 'Submitted'){<button type="button" (click)="transition('Approved')">Approve</button>}</section>
+      </div>
+      <aside>
+        <section class="progress-card"><div class="progress-ring" [style.--progress]="progress() + '%'">{{ progress() }}%</div><div><h2>Inspection progress</h2><p>{{ completed() }} of {{ item.checklist.length }} checklist items completed.</p></div><div class="meter"><i [style.width.%]="progress()"></i></div></section>
+        <section class="sync-card"><span [class.pending]="item.syncStatus !== 'synced'">{{ item.syncStatus === 'synced' ? '✓' : '↻' }}</span><div><strong>{{ item.syncStatus === 'synced' ? 'Saved and synced' : item.syncStatus === 'syncing' ? 'Syncing changes' : 'Saved on this device' }}</strong><small>{{ connectivity.online() ? 'Cloud connection available' : 'Waiting for a network' }}</small></div></section>
+        <app-activity-timeline [events]="item.auditTrail" />
+      </aside>
+    </div>
+  </main>
+} @else {
+  <main class="not-found"><span>⌕</span><h1>Inspection not found</h1><p>This record may have been removed or is unavailable on this device.</p><button type="button" (click)="goBack()">Back to inspections</button></main>
+}

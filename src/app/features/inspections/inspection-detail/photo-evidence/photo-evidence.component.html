@@ -1,0 +1,7 @@
+<section class="photo-section" id="photo-section">
+  <header><div><h2>Photo evidence</h2><p>Capture time and location metadata are stored with each image.</p></div><span>{{ photos().length }} photos</span></header>
+  <div class="photos">
+    @for (photo of photos(); track photo.id) { <figure><img [src]="photo.source" [alt]="photo.name"><button type="button" [disabled]="disabled()" aria-label="Remove photo" (click)="photoRemoved.emit(photo.id)">×</button><figcaption><strong>{{ photo.name }}</strong><span>{{ photo.capturedAt }} · {{ photo.location }}</span></figcaption></figure> }
+    <label class="upload" [class.disabled]="disabled()"><input type="file" accept="image/*" capture="environment" [disabled]="disabled()" (change)="selectPhoto($event)"><span>▣</span><strong>Add photo</strong><small>Camera or file</small></label>
+  </div>
+</section>

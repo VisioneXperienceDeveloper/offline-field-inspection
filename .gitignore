@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build output and framework caches
+dist/
+.angular/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor and OS metadata
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Test coverage
+coverage/

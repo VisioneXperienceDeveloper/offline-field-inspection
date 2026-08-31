@@ -1,0 +1,66 @@
+<div class="app-shell">
+  <aside class="sidebar" [class.open]="mobileOpen()">
+    <a class="brand" routerLink="/inspections" (click)="mobileOpen.set(false)">FIELDNOTE<i></i></a>
+    <nav aria-label="Primary navigation">
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="mobileOpen.set(false)"><span>⌂</span>Dashboard</a>
+      <a routerLink="/inspections" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}" (click)="mobileOpen.set(false)"><span>▤</span>Inspections</a>
+      <a routerLink="/templates" routerLinkActive="active" (click)="mobileOpen.set(false)"><span>▣</span>Templates</a>
+      <a routerLink="/audit-log" routerLinkActive="active" (click)="mobileOpen.set(false)"><span>◇</span>Audit log</a>
+    </nav>
+    <nav class="utility-nav" aria-label="Utility navigation">
+      <a routerLink="/settings" routerLinkActive="active" (click)="mobileOpen.set(false)"><span>⚙</span>Settings</a>
+      <a routerLink="/help" routerLinkActive="active" (click)="mobileOpen.set(false)"><span>?</span>Help centre</a>
+    </nav>
+    <div class="connection-card">
+      <button type="button" (click)="toggleOffline()" [attr.aria-label]="connectivity.online() ? 'Enable offline test mode' : 'Return online'">
+        <i [class.online]="connectivity.online()"></i>
+        <span><strong>{{ connectivity.online() ? 'Online' : 'Offline mode' }}</strong><small>{{ connectivity.online() ? 'Test offline workflow' : 'Saving locally' }}</small></span>
+      </button>
+      <p>{{ inspections.pendingCount() ? inspections.pendingCount() + ' item(s) waiting to sync' : 'All changes are synced' }}</p>
+    </div>
+  </aside>
+
+  @if (mobileOpen()) { <button class="overlay" type="button" aria-label="Close navigation" (click)="mobileOpen.set(false)"></button> }
+
+  <main class="workspace">
+    <header class="topbar">
+      <button class="menu-button" type="button" aria-label="Open navigation" (click)="mobileOpen.set(true)">☰</button>
+      <div class="menu-wrap">
+        <button class="project-switch" type="button" [attr.aria-expanded]="projectMenuOpen()" (click)="projectMenuOpen.set(!projectMenuOpen()); notificationsOpen.set(false); profileOpen.set(false)">
+          <span>▥</span>{{ projects.activeProject().name }}<span>⌄</span>
+        </button>
+        @if (projectMenuOpen()) {
+          <div class="popover project-menu">
+            <strong>Switch project</strong>
+            @for (project of projects.projects; track project.id) {
+              <button type="button" [class.selected]="projects.activeProject().id === project.id" (click)="selectProject(project.id)"><span>{{ project.name }}</span><i>{{ projects.activeProject().id === project.id ? '✓' : '' }}</i></button>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="topbar-actions">
+        <span class="network" [class.offline]="!connectivity.online()"><i></i>{{ connectivity.online() ? 'Online' : 'Offline' }}</span>
+        <div class="menu-wrap">
+          <button class="icon-button" type="button" aria-label="Open notifications" [attr.aria-expanded]="notificationsOpen()" (click)="notificationsOpen.set(!notificationsOpen()); projectMenuOpen.set(false); profileOpen.set(false)">♢<b>{{ notificationCount() }}</b></button>
+          @if (notificationsOpen()) {
+            <div class="popover notifications">
+              <div class="popover-heading"><strong>Notifications</strong><button type="button" (click)="notificationsOpen.set(false)">Close</button></div>
+              @if (inspections.submittedCount()) { <button type="button" (click)="navigate('/inspections')"><i class="blue"></i><span><strong>{{ inspections.submittedCount() }} inspections need approval</strong><small>Open the Submitted tab to review them.</small></span></button> }
+              @if (inspections.pendingCount()) { <button type="button" (click)="inspections.syncPending(); notificationsOpen.set(false)"><i class="amber"></i><span><strong>{{ inspections.pendingCount() }} changes are waiting to sync</strong><small>{{ connectivity.online() ? 'Select to sync now.' : 'They will sync when the connection returns.' }}</small></span></button> }
+              @if (!notificationCount()) { <p class="empty-popover">You are all caught up.</p> }
+            </div>
+          }
+        </div>
+        <div class="menu-wrap">
+          <button class="profile" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen()); projectMenuOpen.set(false); notificationsOpen.set(false)"><span class="avatar">HK</span><span><strong>Henry Kim</strong><small>Site manager</small></span><span>⌄</span></button>
+          @if (profileOpen()) {
+            <div class="popover profile-menu"><button type="button" (click)="navigate('/settings')">Account settings</button><button type="button" (click)="navigate('/help')">Support and help</button></div>
+          }
+        </div>
+      </div>
+    </header>
+    <router-outlet />
+  </main>
+  <app-toast />
+</div>
