@@ -11,7 +11,7 @@ FIELDNOTE is a local-first Angular 20 field-inspection application for unreliabl
 - The companion service persists to a single-process JSON file. It has no multi-instance locking or managed transactional database.
 - CI builds and verifies immutable client/server artifacts, but no real staging or production host, canary promotion or automated rollback target is configured.
 
-See [the maintenance roadmap](docs/maintenance-roadmap.md), [workflow verification](docs/product-workflows-and-verification.md), and [release runbook](docs/release-runbook.md) for the remaining gates.
+See [the arc42 architecture documentation](docs/architecture/README.md), [the maintenance roadmap](docs/maintenance-roadmap.md), [workflow verification](docs/product-workflows-and-verification.md), and [release runbook](docs/release-runbook.md) for the system boundaries and remaining gates.
 
 ## Run the local integration
 
@@ -80,6 +80,8 @@ The complete `npm run verify` gate passed with these results. The generated clie
 The coverage gate requires every runtime file under `src/app/core` to be measured and requires statements, branches, functions and lines to each be at least 80% for both the measured report and aggregated core production logic. Playwright covers six main routes plus lifecycle/role separation, reload persistence, project isolation, offline queue-to-ACK, revision-conflict recovery, offline PWA cold start, accessibility and a 390×844 viewport.
 
 ## Architecture
+
+The complete architecture is documented using arc42, C4 context/container/component views, and UML runtime/state views in [docs/architecture](docs/architecture/README.md).
 
 - `src/app/core/auth`: demo identity and project-permission model
 - `src/app/core/data`: inspection and photo IndexedDB repositories
