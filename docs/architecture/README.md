@@ -26,7 +26,7 @@
 
 ## 갱신 규칙
 
-다음 변경은 같은 커밋에서 [arc42 문서](./arc42.md)를 함께 갱신한다.
+개발 작업마다 `AGENTS.md`의 documentation steward가 전체 변경분의 문서 영향을 검토한다. 다음 변경은 구현과 같은 브랜치·커밋에서 [arc42 문서](./arc42.md)를 함께 갱신한다.
 
 - 런타임 컨테이너, 저장소 또는 외부 시스템 경계 변경
 - 인증, 권한, 프로젝트 격리 또는 데이터 권위 변경
@@ -34,3 +34,5 @@
 - outbox, ACK 순서, retry 또는 충돌 정책 변경
 - API 계약, 환경 변수, 배포 토폴로지 또는 rollback 전략 변경
 - 품질 gate, SLO, Production GO/NO-GO 기준 변경
+
+문서의 구현 기준선, 날짜, 테스트 수치와 artifact hash는 재현 가능한 검증 결과가 있을 때만 바꾼다. 현재 구현은 검증된 코드만 기술하며 목표 상태는 반드시 `Planned / not implemented`로 표시한다. 문서 영향이 없다고 판단한 경우에도 documentation steward는 검토한 diff와 제외 근거를 작업 완료 보고에 남긴다.
