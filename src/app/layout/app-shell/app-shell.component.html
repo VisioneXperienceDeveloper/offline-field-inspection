@@ -16,7 +16,7 @@
         <i [class.online]="connectivity.online()"></i>
         <span><strong>{{ connectivity.online() ? 'Online' : 'Offline mode' }}</strong><small>{{ connectivity.online() ? 'Test offline workflow' : 'Saving locally' }}</small></span>
       </button>
-      <p>{{ inspections.pendingCount() ? inspections.pendingCount() + ' item(s) waiting to sync' : 'All changes are synced' }}</p>
+      <p>{{ inspections.unsavedCount() ? inspections.unsavedCount() + ' item(s) not yet saved locally' : sync.queuedCount() ? sync.queuedCount() + ' remote operation(s) queued' : 'All visible changes saved on device' }}</p>
     </div>
   </aside>
 
@@ -47,15 +47,22 @@
             <div class="popover notifications">
               <div class="popover-heading"><strong>Notifications</strong><button type="button" (click)="notificationsOpen.set(false)">Close</button></div>
               @if (inspections.submittedCount()) { <button type="button" (click)="navigate('/inspections')"><i class="blue"></i><span><strong>{{ inspections.submittedCount() }} inspections need approval</strong><small>Open the Submitted tab to review them.</small></span></button> }
-              @if (inspections.pendingCount()) { <button type="button" (click)="inspections.syncPending(); notificationsOpen.set(false)"><i class="amber"></i><span><strong>{{ inspections.pendingCount() }} changes are waiting to sync</strong><small>{{ connectivity.online() ? 'Select to sync now.' : 'They will sync when the connection returns.' }}</small></span></button> }
+              @if (inspections.saveFailedCount()) { <button type="button" (click)="navigate('/inspections')"><i class="amber"></i><span><strong>{{ inspections.saveFailedCount() }} changes failed to save on this device</strong><small>Open inspections to retry the device write.</small></span></button> }
               @if (!notificationCount()) { <p class="empty-popover">You are all caught up.</p> }
             </div>
           }
         </div>
         <div class="menu-wrap">
-          <button class="profile" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen()); projectMenuOpen.set(false); notificationsOpen.set(false)"><span class="avatar">HK</span><span><strong>Henry Kim</strong><small>Site manager</small></span><span>⌄</span></button>
+          <button class="profile" type="button" aria-label="Open profile menu" [attr.aria-expanded]="profileOpen()" (click)="profileOpen.set(!profileOpen()); projectMenuOpen.set(false); notificationsOpen.set(false)"><span class="avatar">{{ auth.initials() }}</span><span><strong>{{ auth.identity().name }}</strong><small>{{ auth.identity().role }} · demo</small></span><span>⌄</span></button>
           @if (profileOpen()) {
-            <div class="popover profile-menu"><button type="button" (click)="navigate('/settings')">Account settings</button><button type="button" (click)="navigate('/help')">Support and help</button></div>
+            <div class="popover profile-menu">
+              <strong>Demo session</strong>
+              @for (identity of auth.demoIdentities; track identity.id) {
+                <button type="button" [class.selected]="auth.identity().id === identity.id" (click)="selectIdentity(identity.id)"><span>{{ identity.name }}<small>{{ identity.role }}</small></span><i>{{ auth.identity().id === identity.id ? '✓' : '' }}</i></button>
+              }
+              <hr>
+              <button type="button" (click)="navigate('/settings')">Account settings</button><button type="button" (click)="navigate('/help')">Support and help</button>
+            </div>
           }
         </div>
       </div>

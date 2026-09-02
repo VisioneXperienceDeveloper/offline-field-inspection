@@ -1,9 +1,9 @@
 <section class="checklist" id="checklist-section">
   <header><div><h2>Work area safety</h2><p>Complete every required inspection item.</p></div><span>{{ items().length }} items</span></header>
   @for (item of items(); track item.id; let index = $index) {
-    <article [class.failed]="item.answer === 'fail'">
-      <div class="check-row"><span class="number">{{ index + 1 }}</span><strong>{{ item.title }} @if(item.required){<b>*</b>}</strong><div class="answers">
-        @for (answer of ['pass','fail','na']; track answer) { <button type="button" [disabled]="disabled()" [class]="'answer-' + answer + (item.answer === answer ? ' selected' : '')" (click)="answerChanged.emit({itemId:item.id,answer:$any(answer)})">{{ answerLabel($any(answer)) }}</button> }
+    <article [class.failed]="item.answer === 'fail'" role="group" [attr.aria-labelledby]="'checklist-item-' + item.id">
+      <div class="check-row"><span class="number">{{ index + 1 }}</span><strong [id]="'checklist-item-' + item.id">{{ item.title }} @if(item.required){<b><span class="visually-hidden">Required</span><span aria-hidden="true">*</span></b>}</strong><div class="answers" role="group" [attr.aria-label]="'Answer for ' + item.title">
+        @for (answer of ['pass','fail','na']; track answer) { <button type="button" [disabled]="disabled()" [class]="'answer-' + answer + (item.answer === answer ? ' selected' : '')" [attr.aria-pressed]="item.answer === answer" (click)="answerChanged.emit({itemId:item.id,answer:$any(answer)})">{{ answerLabel($any(answer)) }}</button> }
       </div></div>
       @if (item.answer === 'fail') {
         <div class="failure"><label><span>Corrective action or comment <b>*</b></span><textarea [disabled]="disabled()" [ngModel]="item.note" (ngModelChange)="noteChanged.emit({itemId:item.id,note:$event})" placeholder="Describe the issue and required corrective action"></textarea></label><p>A corrective action note is required for failed items.</p></div>

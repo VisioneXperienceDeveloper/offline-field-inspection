@@ -4,8 +4,24 @@
   "private": true,
   "scripts": {
     "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test --watch=false"
+    "build": "ng build --configuration production",
+    "build:server": "node scripts/package-server.mjs",
+    "build:development": "ng build --configuration development",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "test": "npm run test:client && npm run server:test",
+    "test:client": "npm run test:coverage && npm run coverage:check",
+    "test:unit": "ng test --watch=false",
+    "test:coverage": "ng test --watch=false --code-coverage",
+    "coverage:check": "node scripts/check-coverage.mjs coverage/coverage-summary.json 80",
+    "e2e": "playwright test",
+    "server:start": "node server/index.mjs",
+    "server:test": "node --test --experimental-test-coverage --test-coverage-include='server/src/**/*.mjs' --test-coverage-lines=80 --test-coverage-branches=80 --test-coverage-functions=80 server/test/*.test.mjs",
+    "verify": "npm run typecheck && npm test && npm run build && npm run build:server && npm run e2e && npm run artifact:checksum && npm run artifact:verify && npm run artifact:server:checksum && npm run artifact:server:verify",
+    "preview": "node scripts/serve-dist.mjs dist/fieldnote 4173",
+    "artifact:checksum": "node scripts/artifact-checksum.mjs dist/fieldnote",
+    "artifact:verify": "node scripts/verify-artifact.mjs dist/fieldnote",
+    "artifact:server:checksum": "node scripts/artifact-checksum.mjs dist/fieldnote-server 1",
+    "artifact:server:verify": "node scripts/verify-artifact.mjs dist/fieldnote-server"
   },
   "dependencies": {
     "@angular/common": "20.3.30",
@@ -14,6 +30,7 @@
     "@angular/forms": "20.3.30",
     "@angular/platform-browser": "20.3.30",
     "@angular/router": "20.3.30",
+    "@angular/service-worker": "^20.3.30",
     "rxjs": "^7.8.2",
     "tslib": "^2.8.1",
     "zone.js": "^0.15.1"
@@ -23,7 +40,13 @@
     "@angular/build": "20.3.16",
     "@angular/cli": "20.3.16",
     "@angular/compiler-cli": "20.3.30",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
+    "@vitest/coverage-v8": "^3.2.7",
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^26.1.0",
     "node": "^22.22.3",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "^3.2.7"
   }
 }

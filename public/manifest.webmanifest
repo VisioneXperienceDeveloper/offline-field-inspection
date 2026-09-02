@@ -1,0 +1,18 @@
+{
+  "name": "FIELDNOTE Offline Field Inspection",
+  "short_name": "FIELDNOTE",
+  "description": "Local-first field inspection capture for unreliable network conditions.",
+  "start_url": "/inspections",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#081a31",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

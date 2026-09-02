@@ -1,5 +1,6 @@
 export type InspectionStatus = 'Draft' | 'Submitted' | 'Approved';
-export type SyncStatus = 'synced' | 'pending' | 'syncing';
+export type SyncStatus = 'synced' | 'pending' | 'syncing' | 'failed' | 'conflicted';
+export type LocalSaveStatus = 'saving' | 'saved' | 'failed';
 export type InspectionAnswer = 'pass' | 'fail' | 'na' | null;
 
 export interface ChecklistItem {
@@ -23,12 +24,21 @@ export interface Inspection {
   title: string;
   templateId: string;
   templateName: string;
+  templateVersion: number;
+  templatePublishedAt: string | null;
+  templateSnapshotAt: string | null;
   projectId: string;
   projectName: string;
   zone: string;
   inspector: string;
+  createdBy: string;
+  approvedBy: string | null;
   status: InspectionStatus;
+  localSaveStatus: LocalSaveStatus;
+  localRevision: number;
   syncStatus: SyncStatus;
+  serverRevision: number | null;
+  lastServerAckAt: string | null;
   updatedAt: string;
   inspectionDate: string;
   weather: string;
@@ -42,6 +52,10 @@ export interface InspectionPhoto {
   id: string;
   name: string;
   source: string;
+  storageKey: string | null;
+  mimeType: string;
+  byteSize: number;
+  checksum: string | null;
   capturedAt: string;
   location: string;
 }

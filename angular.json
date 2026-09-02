@@ -2,6 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "newProjectRoot": "projects",
+  "cli": {"cache": {"enabled": false}},
   "projects": {
     "fieldnote": {
       "projectType": "application",
@@ -10,19 +11,59 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "main": "src/main.ts",
+            "browser": "src/main.ts",
             "index": "src/index.html",
-            "outputPath": "dist/fieldnote",
+            "outputPath": {"base": "dist/fieldnote", "browser": ""},
             "tsConfig": "tsconfig.app.json",
-            "optimization": false,
-            "sourceMap": true,
+            "polyfills": ["zone.js"],
             "assets": [{ "glob": "**/*", "input": "public" }, { "glob": "**/*", "input": "src/assets", "output": "assets" }],
             "styles": ["src/styles.css"]
-          }
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "sourceMap": false,
+              "outputHashing": "all",
+              "extractLicenses": true,
+              "namedChunks": false,
+              "serviceWorker": "ngsw-config.json",
+              "budgets": [
+                {"type": "initial", "maximumWarning": "750kb", "maximumError": "1mb"},
+                {"type": "anyComponentStyle", "maximumWarning": "18kb", "maximumError": "24kb"}
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "outputHashing": "none",
+              "namedChunks": true,
+              "serviceWorker": false
+            }
+          },
+          "defaultConfiguration": "production"
         },
-        "serve": { "builder": "@angular-devkit/build-angular:dev-server", "options": { "buildTarget": "fieldnote:build" } }
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {"buildTarget": "fieldnote:build:production"},
+            "development": {"buildTarget": "fieldnote:build:development"}
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "fieldnote:build:development",
+            "tsConfig": "tsconfig.spec.json",
+            "runner": "vitest",
+            "watch": false,
+            "codeCoverage": false,
+            "codeCoverageReporters": ["text", "json-summary", "lcov"],
+            "setupFiles": ["src/test-setup.ts"]
+          }
+        }
       }
     }
   }

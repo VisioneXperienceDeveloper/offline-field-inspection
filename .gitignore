@@ -22,3 +22,8 @@ npm-debug.log*
 
 # Test coverage
 coverage/
+playwright-report/
+test-results/
+
+# Local runtime data
+server/data/
